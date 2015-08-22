@@ -1,7 +1,7 @@
 # ProgramacionAvanzada
 
-Parcial 1
-  Tarea 1
-    Ejercicio1
-    Ejercicio2
-    Ejercicio3
+Parcial 1\n
+  Tarea 1\n
+    Ejercicio1\n
+    Ejercicio2\n
+    Ejercicio3\n
