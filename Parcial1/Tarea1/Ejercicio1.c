@@ -52,10 +52,29 @@ int main() {
 	agregarTripulante(p);
 	tripulantes(p,0);
 
+	limpiarPuerto(p);
+
 	return 0;
 }
 
 void limpiarPuerto(Puerto *p){
+
+	Embarcacion *aux = p->barcos;
+	while (aux < p->barcos + p->guardados){
+		Persona *auxT = aux->Tripulacion;
+		while (auxT < aux->Tripulacion + aux->TripulantesActuales){
+			free(auxT->Nombre);
+			free(auxT->Apellidos);
+			free(auxT->Rol);
+			auxT++;
+		}
+		free(aux->Propietario.Nombre);
+		free(aux->Propietario.Apellidos);
+		free(aux->Propietario.Rol);
+		free(aux->Nombre);
+		free(aux->Tripulacion);
+		aux++;
+	}
 	free(p->barcos);
 	free(p);
 }
