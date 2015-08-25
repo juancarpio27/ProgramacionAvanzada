@@ -137,7 +137,7 @@ void incoporarEmbarcacion(Puerto *p){
 		p->guardados++;
 	}
 	else {
-		realloc(p->barcos,p->tamano*2);
+		p->barcos = (Embarcacion*)realloc(p->barcos,p->tamano*2*sizeof(Embarcacion));
 		p->tamano = p->tamano*2;
 		*(p->barcos + p->guardados) = e;
 		p->guardados++;
