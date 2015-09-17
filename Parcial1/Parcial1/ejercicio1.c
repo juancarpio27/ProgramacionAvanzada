@@ -90,12 +90,17 @@ int main(int argc, const char * argv[]){
 	o->m.actuales = 0;
 
 	agregarTrabajador(o);
+	agregarTrabajador(o);
 	//editarTrabajador(o,4);
 	//imprimirTrabajadores(o);
 
 	agregarEstructura(o,4);
-	agregarEstructura(o,4);
+	agregarEstructura(o,3);
 	imprimirOrganizacion(o);
+
+	free(o->m.fechas);
+	free(o->r.trabajadores);
+	free(o);
 
 	return 0;
 }
@@ -141,17 +146,22 @@ void editarTrabajador(Organizacion *o, int nomina){
 }
 
 void imprimirTrabajador(Trabajador t){
-	printf("Numero de nomina %d / Nombre: %s\n\n",t.nomina,t.nombre);
+	printf("----TRABAJADOR----\n");
+	printf("Numero de nomina %d / Nombre: %s\n",t.nomina,t.nombre);
+	printf("Numero de trabajos %d\n", t.actuales);
+	Modelo *aux;
+	printf("---MODELOS---");
+	for (aux = t.modelos; aux<t.modelos+t.actuales; ++aux){
+		printf("Trabajo:\nTipo: %d\n", aux->tipo);
+	}
+
 }
 
 void imprimirTrabajadores(Organizacion *o){
 	Trabajador *aux;
 	for (aux = o->r.trabajadores; aux < o->r.trabajadores + o->r.actuales; ++aux){
 		imprimirTrabajador(*aux);
-		Modelo *aux_modelo = aux->modelos;
-		for (aux_modelo = aux->modelos; aux_modelo < aux->modelos + aux->actuales; ++aux_modelo){
-			printf("Trabajo de tipo %d\n", aux_modelo->tipo);
-		}
+		
 	}
 }
 
@@ -161,6 +171,7 @@ int existeFecha(Organizacion *o,char * c) {
 	while (aux < o->m.fechas + o->m.actuales) {
 		if (!strcmp(c,aux->fecha))
 			return 1;
+		++aux;
 	}
 	return 0;
 }
@@ -177,7 +188,6 @@ void agregarEstructura(Organizacion *o, int n){
 		Fecha *aux_fecha = o->m.fechas;
 		//while (!strcmp(fecha_obra, aux_fecha->fecha))
 		//	++aux_fecha;
-		printf ("Agregandole un modelo a la fecha %s\n", aux_fecha->fecha);
 		Trabajador *aux = o->r.trabajadores;
 		while  (aux < o->r.trabajadores + o->r.actuales && aux->nomina != n){
 			++aux;
@@ -185,19 +195,59 @@ void agregarEstructura(Organizacion *o, int n){
 		if (aux == o->r.trabajadores + o->r.actuales)
 			printf("Trabajador no encontrado\n");
 		else {
-			//BUSCO EL TRABAJADOR
-			printf("Encontre el trabajador\n");
-			*(aux_fecha->trabajadores+aux_fecha->actuales) = *aux;
-			aux_fecha->actuales++;
+			//EFECTIVAMENTE EL TRABAJADOR EXISTE EN LA NOMINA AL IGUAL QUE LA FECHA
+			//BUSCAR EL TRABAJADOR A VER SI ESTA EN LA FECHA (EL TRABAJADOR ESTA GUARDANDO EN AUX)
+			
+			while (strcmp(aux_fecha->fecha,fecha_obra))
+				++aux_fecha;
+			//YA TENGO LA FECHA DONDE VOY A AGREGAR, AHORA TENGO QUE BUSCAR SI EL TRABAJADOR ES NUEVO EN LA FECHA O YA ESTA
+			Trabajador *aux_trabajador = aux_fecha->trabajadores;
+			while (aux_trabajador < aux_fecha->trabajadores + aux_fecha->limite && aux_trabajador->nomina != n){
+				aux_trabajador++;
+			}
+			if (aux_trabajador == aux_fecha->trabajadores + aux_fecha->limite) {
+				printf("Es un nuevo trabajador para la fecha");
+				Trabajador t;
+				t.nomina = n;
+				t.nombre = (char*)malloc(20*sizeof(char));
+				t.modelos = (Modelo*)malloc(20*sizeof(Modelo));
+				t.nombre = aux->nombre;
+				t.actuales = 0;
 
-			Trabajador t = *aux;
+				//CREO SU MODELO
+				Modelo m;
+				printf("Tipo de modelo: ");
+				scanf("%d",&m.tipo);
 
-			//CREO SU MODELO
-			Modelo m;
-			printf("Tipo de modelo: ");
-			scanf("%d",&m.tipo);
-			*(t.modelos + t.actuales) = m;
-			t.actuales++;
+				*(t.modelos) = m;
+				t.actuales++;
+
+				if (aux_fecha->actuales < aux_fecha->limite){
+					*(aux_fecha->trabajadores+aux_fecha->actuales) = t;
+					aux_fecha->actuales++;
+				}
+				else {
+					aux_fecha->trabajadores = (Trabajador*)realloc(aux_fecha->trabajadores,aux_fecha->limite*2*sizeof(Trabajador));
+					aux_fecha->limite *= 2;
+					*(aux_fecha->trabajadores+aux_fecha->actuales) = t;
+					aux_fecha->actuales++;
+				}
+			}
+			else {
+				//CREO SU MODELO
+				Modelo m;
+				printf("Tipo de modelo: ");
+				scanf("%d",&m.tipo);
+
+				if (aux_trabajador->actuales < aux_trabajador->limite){
+					*(aux_trabajador->modelos+aux_trabajador->actuales) = m;
+					aux_trabajador->actuales++;
+				}
+				else {
+					aux_trabajador->modelos = (Modelo*)realloc(aux_trabajador->modelos,aux_trabajador->limite*2*sizeof(Modelo));
+				}
+
+			}
 
 		}
 	}
@@ -216,25 +266,40 @@ void agregarEstructura(Organizacion *o, int n){
 		while  (aux < o->r.trabajadores + o->r.actuales && aux->nomina != n){
 			++aux;
 		}
+		//BUSCO EL TRABAJADOR
 		if (aux == o->r.trabajadores + o->r.actuales)
 			printf("Trabajador no encontrado\n");
+		//YA QUE EXISTE UN TRABAJADOR PARA ESA FECHA
 		else {
-			//BUSCO EL TRABAJADOR
-			printf("Encontre el trabajador\n");
-			*(f.trabajadores) = *aux;
-			f.actuales++;
-
-			Trabajador t = *aux;
+			
+			printf("Si existe el trabajador, vamos a agregarlo a la fecha\n");
+			Trabajador t;
+			t.nomina = n;
+			t.nombre = (char*)malloc(20*sizeof(char));
+			t.modelos = (Modelo*)malloc(20*sizeof(Modelo));
+			t.nombre = aux->nombre;
+			t.actuales = 0;
+			t.limite = 20;
 
 			//CREO SU MODELO
 			Modelo m;
 			printf("Tipo de modelo: ");
 			scanf("%d",&m.tipo);
-			*(t.modelos + t.actuales) = m;
-			aux->actuales++;
 
+			*(t.modelos) = m;
+			t.actuales++;
 
+			*(f.trabajadores) = t;
+			f.actuales++;
+
+			//SI LE PUEDO AGREGAR UNA FECHA A LA ORG
 			if (o->m.actuales < o->m.limite){
+				*(o->m.fechas + o->m.actuales) = f;
+				++o->m.actuales;
+			}
+			else {
+				o->m.fechas = (Fecha*)realloc(o->m.fechas, 2*o->m.limite*sizeof(Fecha));
+				o->m.limite = o->m.limite * 2;
 				*(o->m.fechas + o->m.actuales) = f;
 				++o->m.actuales;
 			}
@@ -245,6 +310,7 @@ void agregarEstructura(Organizacion *o, int n){
 }
 
 void imprimirOrganizacion(Organizacion *o) {
+	printf("---------ORGANIZACION-------------\n\n\n");
 	Fecha *aux = o->m.fechas;
 	for (aux = o->m.fechas; aux < o->m.fechas + o->m.actuales; ++aux){
 		imprimirFecha(*aux);
