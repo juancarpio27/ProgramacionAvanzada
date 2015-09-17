@@ -76,6 +76,12 @@ void agregarEstructura(Organizacion *o, int n);
 int existeFecha(Organizacion *o,char * c);
 void imprimirOrganizacion(Organizacion *o);
 void imprimirFecha(Fecha f);
+void liberarMemoria(Organizacion*);
+void eliminarTrabajador(Organizacion *o, int n);
+void imprimirRRHH(Organizacion *o);
+void revisarModelosFecha(Organizacion*, int nomina, char *fecha);
+void imprimirModelo(Modelo m);
+void revisarVariosModelos(Organizacion*, int c);
 
 int main(int argc, const char * argv[]){
 
@@ -91,13 +97,21 @@ int main(int argc, const char * argv[]){
 
 	agregarTrabajador(o);
 	agregarTrabajador(o);
-	//editarTrabajador(o,4);
-	//imprimirTrabajadores(o);
+	//agregarTrabajador(o);
 
-	agregarEstructura(o,4);
-	agregarEstructura(o,3);
-	imprimirOrganizacion(o);
+	//eliminarTrabajador(o,1);
 
+	//imprimirRRHH(o);
+
+	agregarEstructura(o,1);
+	agregarEstructura(o,2);
+
+	revisarVariosModelos(o,2);
+	//agregarEstructura(o,2);
+	//imprimirOrganizacion(o);
+	//revisarModelosFecha(o,2,"2");
+
+	liberarMemoria(o);
 	free(o->m.fechas);
 	free(o->r.trabajadores);
 	free(o);
@@ -109,24 +123,39 @@ void agregarTrabajador(Organizacion *o){
 
 	Trabajador t;
 	printf("Numero de nomina: ");
-	t.nombre = (char*)malloc(50*sizeof(char));
 	scanf("%d",&t.nomina);
+
+	int salario;
+	char *puesto;
+
+	t.nombre = (char*)malloc(50*sizeof(char));
 	printf("Nombre: ");
 	scanf("%s",t.nombre);
+	t.apellidos = (char*)malloc(50*sizeof(char));
+	printf("Apellido: ");
+	scanf("%s",t.apellidos);
+	t.fecha = (char*)malloc(50*sizeof(char));
+	printf("Fecha de nacimiento: ");
+	scanf("%s",t.fecha);
+	t.ingreso = (char*)malloc(50*sizeof(char));
+	printf("Fecha de ingreso: ");
+	scanf("%s",t.ingreso);
+	printf("Salario: ");
+	scanf("%d",&t.salario);
+	t.puesto = (char*)malloc(50*sizeof(char));
+	printf("Puesto: ");
+	scanf("%s",t.puesto);
 
 
-	t.modelos = (Modelo*)malloc(20*sizeof(Modelo));
-	t.limite = 20;
-	t.actuales = 0;
-
-	int a = o->r.actuales;
-
-	if (a < o->r.limite){
-		*(o->r.trabajadores+a) = t;
+	if (o->r.actuales < o->r.limite){
+		*(o->r.trabajadores+o->r.actuales) = t;
 		++o->r.actuales;
 	}
 	else {
 		o->r.trabajadores = (Trabajador*)realloc(o->r.trabajadores,2*o->r.actuales);
+		o->r.limite *= 2;
+		*(o->r.trabajadores+o->r.actuales) = t;
+		++o->r.actuales;
 	}
 }
 
@@ -141,19 +170,29 @@ void editarTrabajador(Organizacion *o, int nomina){
 	else {
 		printf("Nombre: ");
 		scanf("%s",aux->nombre);
+		printf("Apellidos: ");
+		scanf("%s",aux->apellidos);
+		printf("Fecha de nacimiento: ");
+		scanf("%s",aux->fecha);
+		printf("Salario: ");
+		scanf("%d",&aux->salario);
+		printf("Puesto: ");
+		scanf("%s",aux->puesto);
 	}
 
 }
 
 void imprimirTrabajador(Trabajador t){
 	printf("----TRABAJADOR----\n");
-	printf("Numero de nomina %d / Nombre: %s\n",t.nomina,t.nombre);
-	printf("Numero de trabajos %d\n", t.actuales);
+	printf("Numero de nomina %d / Nombre y apellido: %s %s\n",t.nomina,t.nombre,t.apellidos);
+	printf("Fecha de nacimiento: %s  /  Fecha de ingreso %s\n",t.fecha,t.ingreso);
+	printf("Numero de trabajos %d\n\n", t.actuales);
 	Modelo *aux;
-	printf("---MODELOS---");
+	printf("---MODELOS---\n");
 	for (aux = t.modelos; aux<t.modelos+t.actuales; ++aux){
-		printf("Trabajo:\nTipo: %d\n", aux->tipo);
+		imprimirModelo(*aux);
 	}
+	printf("\n");
 
 }
 
@@ -210,14 +249,48 @@ void agregarEstructura(Organizacion *o, int n){
 				Trabajador t;
 				t.nomina = n;
 				t.nombre = (char*)malloc(20*sizeof(char));
+				t.apellidos = (char*)malloc(20*sizeof(char));
+				t.fecha  = (char*)malloc(20*sizeof(char));
+				t.ingreso = (char*)malloc(20*sizeof(char));
 				t.modelos = (Modelo*)malloc(20*sizeof(Modelo));
-				t.nombre = aux->nombre;
+				strcpy(t.nombre,aux->nombre);
+				strcpy(t.apellidos,aux->apellidos);
+				strcpy(t.fecha,aux->fecha);
+				strcpy(t.ingreso,aux->ingreso);
+
 				t.actuales = 0;
+				t.limite = 20;
+
 
 				//CREO SU MODELO
 				Modelo m;
-				printf("Tipo de modelo: ");
+				printf("Tipo de modelo (0.Edifico 1.Torre 2. Nave): ");
 				scanf("%d",&m.tipo);
+
+				printf("Periodo: ");
+				scanf("%d",&m.periodo);
+
+				//SE CREO UN 
+				if (m.tipo == EDIFICIO){
+					printf("Niveles: ");
+					scanf("%d", &m.niveles);
+					m.modales = (int*)malloc(m.niveles*sizeof(int));
+					printf("Simetrico: 1.Si 0.No");
+					scanf("%d",&m.simetrico);
+				}
+				if (m.tipo == TORRE){
+					printf("Niveles: ");
+					scanf("%d", &m.niveles);
+					m.modales = (int*)malloc(m.niveles*sizeof(int));
+					m.diametros = (int*)malloc(2*sizeof(int));
+				}
+				if (m.tipo == NAVE){
+					m.niveles = 1;
+					m.modales = (int*)malloc(m.niveles*sizeof(int));
+					m.techo = (char*)malloc(20*sizeof(char));
+					printf("Tipo de techo: ");
+					scanf("%s",m.techo);
+				}
 
 				*(t.modelos) = m;
 				t.actuales++;
@@ -236,8 +309,33 @@ void agregarEstructura(Organizacion *o, int n){
 			else {
 				//CREO SU MODELO
 				Modelo m;
-				printf("Tipo de modelo: ");
+				printf("Tipo de modelo (0.Edifico 1.Torre 2. Nave): ");
 				scanf("%d",&m.tipo);
+
+				printf("Periodo: ");
+				scanf("%d",&m.periodo);
+
+				//SE CREO UN 
+				if (m.tipo == EDIFICIO){
+					printf("Niveles: ");
+					scanf("%d", &m.niveles);
+					m.modales = (int*)malloc(m.niveles*sizeof(int));
+					printf("Simetrico: 1.Si 0.No");
+					scanf("%d",&m.simetrico);
+				}
+				if (m.tipo == TORRE){
+					printf("Niveles: ");
+					scanf("%d", &m.niveles);
+					m.modales = (int*)malloc(m.niveles*sizeof(int));
+					m.diametros = (int*)malloc(2*sizeof(int));
+				}
+				if (m.tipo == NAVE){
+					m.niveles = 1;
+					m.modales = (int*)malloc(m.niveles*sizeof(int));
+					m.techo = (char*)malloc(20*sizeof(char));
+					printf("Tipo de techo: ");
+					scanf("%s",m.techo);
+				}
 
 				if (aux_trabajador->actuales < aux_trabajador->limite){
 					*(aux_trabajador->modelos+aux_trabajador->actuales) = m;
@@ -276,15 +374,46 @@ void agregarEstructura(Organizacion *o, int n){
 			Trabajador t;
 			t.nomina = n;
 			t.nombre = (char*)malloc(20*sizeof(char));
+			t.apellidos = (char*)malloc(20*sizeof(char));
+			t.fecha  = (char*)malloc(20*sizeof(char));
+			t.ingreso = (char*)malloc(20*sizeof(char));
 			t.modelos = (Modelo*)malloc(20*sizeof(Modelo));
-			t.nombre = aux->nombre;
+			strcpy(t.nombre,aux->nombre);
+			strcpy(t.apellidos,aux->apellidos);
+			strcpy(t.fecha,aux->fecha);
+			strcpy(t.ingreso,aux->ingreso);
+
 			t.actuales = 0;
 			t.limite = 20;
 
 			//CREO SU MODELO
 			Modelo m;
-			printf("Tipo de modelo: ");
+			printf("Tipo de modelo (0.Edifico 1.Torre 2. Nave): ");
 			scanf("%d",&m.tipo);
+			printf("Periodo: ");
+			scanf("%d",&m.periodo);
+
+			//SE CREO UN 
+			if (m.tipo == EDIFICIO){
+				printf("Niveles: ");
+				scanf("%d", &m.niveles);
+				m.modales = (int*)malloc(m.niveles*sizeof(int));
+				printf("Simetrico: 1.Si 0.No");
+				scanf("%d",&m.simetrico);
+			}
+			if (m.tipo == TORRE){
+				printf("Niveles: ");
+				scanf("%d", &m.niveles);
+				m.modales = (int*)malloc(m.niveles*sizeof(int));
+				m.diametros = (int*)malloc(2*sizeof(int));
+			}
+			if (m.tipo == NAVE){
+				m.niveles = 1;
+				m.modales = (int*)malloc(m.niveles*sizeof(int));
+				m.techo = (char*)malloc(20*sizeof(char));
+				printf("Tipo de techo: ");
+				scanf("%s",m.techo);
+			}
 
 			*(t.modelos) = m;
 			t.actuales++;
@@ -318,6 +447,7 @@ void imprimirOrganizacion(Organizacion *o) {
 }
 
 void imprimirFecha(Fecha f){
+	printf("------FECHA-------");
 	printf("Fecha: %s\n",f.fecha);
 	Trabajador *aux = f.trabajadores;
 	printf("Tengo %d personas\n",f.actuales);
@@ -325,5 +455,149 @@ void imprimirFecha(Fecha f){
 		imprimirTrabajador(*aux);
 		++aux;
 	}
+	printf("\n");
+}
+
+void liberarMemoria(Organizacion* o) {
+
+	Trabajador *aux_trabajador;
+	for (aux_trabajador = o->r.trabajadores; aux_trabajador < o->r.trabajadores + o->r.actuales; ++aux_trabajador){
+		free(aux_trabajador->nombre);
+		free(aux_trabajador->apellidos);
+		free(aux_trabajador->fecha);
+		free(aux_trabajador->ingreso);
+		free(aux_trabajador->puesto);
+	}
+	Fecha *aux_fecha;
+	for (aux_fecha = o->m.fechas; aux_fecha < o->m.fechas + o->m.actuales; ++aux_fecha){
+		free(aux_fecha->fecha);
+		for (aux_trabajador = aux_fecha->trabajadores; aux_trabajador < aux_fecha->trabajadores + aux_fecha->actuales; ++aux_trabajador){
+			//Al ser copias se borraron al darle free arriba
+			free(aux_trabajador->nombre);
+			free(aux_trabajador->apellidos);
+			free(aux_trabajador->fecha);
+			free(aux_trabajador->ingreso);
+
+			Modelo *aux_modelo;
+			for (aux_modelo = aux_trabajador->modelos; aux_modelo < aux_trabajador->modelos + aux_trabajador->actuales; ++ aux_modelo){
+				free(aux_modelo->modales);
+				if (aux_modelo->tipo == TORRE){
+					free(aux_modelo->diametros);
+				}
+				if (aux_modelo->tipo == NAVE){
+					free(aux_modelo->techo);
+				}
+			}
+
+			free(aux_trabajador->modelos);
+		}
+		free(aux_fecha->trabajadores);
+	}
+
+
+}
+
+void eliminarTrabajador(Organizacion *o, int n){
+
+	Trabajador *aux = o->r.trabajadores;
+	while (aux < o->r.trabajadores + o->r.actuales && aux->nomina != n){
+		aux++;
+	}
+	if (aux == o->r.trabajadores + o->r.actuales){
+		printf("Error");
+	}
+	else {
+		Trabajador t = *(o->r.trabajadores + o->r.actuales - 1);
+		free(aux->nombre);
+		free(aux->apellidos);
+		free(aux->ingreso);
+		free(aux->puesto);
+		free(aux->fecha);
+
+		*aux = t;
+		o->r.actuales--;
+
+	}
+
+}
+
+void imprimirRRHH(Organizacion *o){
+
+	printf("-----RECURSOS HUMANOS-----");
+	Trabajador *aux;
+	for (aux=o->r.trabajadores; aux< o->r.trabajadores + o->r.actuales; ++aux){
+		printf("Trabajador %s %s",aux->nombre, aux->apellidos);
+	}
+
+}
+
+void revisarModelosFecha(Organizacion* o, int nomina, char *fecha){
+	//PRIMERO DEBO BUSCAR LA FECHA
+
+	Fecha *aux_fecha = o->m.fechas;
+	while (aux_fecha < o->m.fechas + o->m.actuales && strcmp(fecha,aux_fecha->fecha)){
+		++aux_fecha;
+	}
+	if (aux_fecha == o->m.fechas + o->m.actuales)
+		printf("Error: no hay trabajos para esta fecha");
+
+	//UNA VEZ QUE CONSEGUI LA FECHA
+	else {
+		Trabajador *aux_trabajador = aux_fecha->trabajadores;
+		while (aux_trabajador < aux_fecha->trabajadores + aux_fecha->actuales && aux_trabajador->nomina != nomina){
+			++aux_trabajador;
+		}
+		if (aux_trabajador == aux_fecha->trabajadores + aux_fecha->actuales)
+			printf("Error: no hay trabajador en esta fecha");
+		else {
+			//Si lo consegui
+			Modelo *aux_modelo;
+			for (aux_modelo = aux_trabajador->modelos; aux_modelo < aux_trabajador->modelos + aux_trabajador->actuales; ++aux_modelo){
+				imprimirModelo(*aux_modelo);
+			}
+		}
+	}
+}
+
+void imprimirModelo(Modelo m){
+
+	printf("-----TRABAJO------\n");
+	if (m.tipo == 0){
+		printf("Edificio\n");
+	}
+	else if (m.tipo == 2){
+		printf("Torre\n");
+	}
+	else {
+		printf("Nave\n");
+	}
+
+}
+
+void revisarVariosModelos(Organizacion* o, int c){
+
+	for (int i=0;i<c;i++){
+		int nomina;
+		printf("Nomina a revisar: ");
+		scanf("%d",&nomina);
+		printf("fecha a revisar: ");
+		char *fecha = (char*)malloc(20*sizeof(char));
+		scanf("%s",fecha);
+		pid_t childpid;
+		childpid = fork();
+
+		if (childpid < 0)
+			printf("Error en la creacion del proceso\n");
+		else if (childpid == 0){
+			revisarModelosFecha(o,nomina,fecha);
+			exit(1);
+		}
+
+		free(fecha);
+	}
+
+	printf("Lista la revision\n");
+
+	
 }
 
