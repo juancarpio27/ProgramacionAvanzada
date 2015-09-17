@@ -171,6 +171,9 @@ void agregarTripulante(Puerto *p){
 
 	if (aux == p->barcos + p->guardados){
 		printf("Error no existe el barco\n");
+		free(pe.Nombre);
+		free(pe.Apellidos);
+		free(pe.Rol);
 	}
 
 	else {
@@ -180,6 +183,9 @@ void agregarTripulante(Puerto *p){
 		}
 		else {
 			printf("Error el barco esta lleno\n");
+			free(pe.Nombre);
+			free(pe.Apellidos);
+			free(pe.Rol);
 		}
 	}
 
