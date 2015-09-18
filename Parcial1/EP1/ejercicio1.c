@@ -399,8 +399,11 @@ void agregarEstructura(Organizacion *o, int n){
 			++aux;
 		}
 		//BUSCO EL TRABAJADOR
-		if (aux == o->r.trabajadores + o->r.actuales)
+		if (aux == o->r.trabajadores + o->r.actuales){
 			printf("Trabajador no encontrado\n");
+			free(f.fecha);
+			free(f.trabajadores);
+		}
 		//YA QUE EXISTE UN TRABAJADOR PARA ESA FECHA
 		else {
 			
