@@ -82,6 +82,8 @@ void imprimirRRHH(Organizacion *o);
 void revisarModelosFecha(Organizacion*, int nomina, char *fecha);
 void imprimirModelo(Modelo m);
 void revisarVariosModelos(Organizacion*, int c);
+void reporte(Organizacion*,char*,char*);
+int calcularModelos(Fecha f);
 
 int main(int argc, const char * argv[]){
 
@@ -95,21 +97,48 @@ int main(int argc, const char * argv[]){
 	o->m.limite = 20;
 	o->m.actuales = 0;
 
+	printf("****Agregar trabajador****\n");
 	agregarTrabajador(o);
+	printf("****Agregar trabajador****\n");
 	agregarTrabajador(o);
-	//agregarTrabajador(o);
+	printf("****Agregar trabajador****\n");
+	agregarTrabajador(o);
 
-	//eliminarTrabajador(o,1);
+	printf("****Editar trabajador****\n");
+	int nomina;
+	printf("Nomina: ");
+	scanf("%d",&nomina);
+	editarTrabajador(o,nomina);
 
-	//imprimirRRHH(o);
+	printf("****Eliminar trabajador****\n");
+	printf("Nomina: ");
+	scanf("%d",&nomina);
+	eliminarTrabajador(o,nomina);
 
-	agregarEstructura(o,1);
-	agregarEstructura(o,2);
+	printf("****Agregar modelo****\n");
+	printf("Nomina del trabajador encargado: ");
+	scanf("%d",&nomina);
+	agregarEstructura(o,nomina);
 
+	printf("****Agregar modelo****\n");
+	printf("Nomina del trabajador encargado: ");
+	scanf("%d",&nomina);
+	agregarEstructura(o,nomina);
+
+	printf("****Agregar modelo****\n");
+	printf("Nomina del trabajador encargado: ");
+	scanf("%d",&nomina);
+	agregarEstructura(o,nomina);
+
+	printf("****Reporte entre los dias 1 y 10****\n");
+	reporte(o,"1","10");
+
+	printf("****Imprimir toda la organizacion****\n");
+	imprimirOrganizacion(o);
+
+	printf("Revisar modelos para 2 trabajadores simultaneos\n");
 	revisarVariosModelos(o,2);
-	//agregarEstructura(o,2);
-	//imprimirOrganizacion(o);
-	//revisarModelosFecha(o,2,"2");
+	
 
 	liberarMemoria(o);
 	free(o->m.fechas);
@@ -186,6 +215,7 @@ void imprimirTrabajador(Trabajador t){
 	printf("----TRABAJADOR----\n");
 	printf("Numero de nomina %d / Nombre y apellido: %s %s\n",t.nomina,t.nombre,t.apellidos);
 	printf("Fecha de nacimiento: %s  /  Fecha de ingreso %s\n",t.fecha,t.ingreso);
+	printf("Puesto: %s\n",t.puesto);
 	printf("Numero de trabajos %d\n\n", t.actuales);
 	Modelo *aux;
 	printf("---MODELOS---\n");
@@ -252,11 +282,13 @@ void agregarEstructura(Organizacion *o, int n){
 				t.apellidos = (char*)malloc(20*sizeof(char));
 				t.fecha  = (char*)malloc(20*sizeof(char));
 				t.ingreso = (char*)malloc(20*sizeof(char));
+				t.puesto = (char*)malloc(20*sizeof(char));
 				t.modelos = (Modelo*)malloc(20*sizeof(Modelo));
 				strcpy(t.nombre,aux->nombre);
 				strcpy(t.apellidos,aux->apellidos);
 				strcpy(t.fecha,aux->fecha);
 				strcpy(t.ingreso,aux->ingreso);
+				strcpy(t.puesto,aux->puesto);
 
 				t.actuales = 0;
 				t.limite = 20;
@@ -377,11 +409,13 @@ void agregarEstructura(Organizacion *o, int n){
 			t.apellidos = (char*)malloc(20*sizeof(char));
 			t.fecha  = (char*)malloc(20*sizeof(char));
 			t.ingreso = (char*)malloc(20*sizeof(char));
+			t.puesto = (char*)malloc(20*sizeof(char));
 			t.modelos = (Modelo*)malloc(20*sizeof(Modelo));
 			strcpy(t.nombre,aux->nombre);
 			strcpy(t.apellidos,aux->apellidos);
 			strcpy(t.fecha,aux->fecha);
 			strcpy(t.ingreso,aux->ingreso);
+			strcpy(t.puesto,aux->puesto);
 
 			t.actuales = 0;
 			t.limite = 20;
@@ -477,6 +511,7 @@ void liberarMemoria(Organizacion* o) {
 			free(aux_trabajador->apellidos);
 			free(aux_trabajador->fecha);
 			free(aux_trabajador->ingreso);
+			free(aux_trabajador->puesto);
 
 			Modelo *aux_modelo;
 			for (aux_modelo = aux_trabajador->modelos; aux_modelo < aux_trabajador->modelos + aux_trabajador->actuales; ++ aux_modelo){
@@ -513,6 +548,7 @@ void eliminarTrabajador(Organizacion *o, int n){
 		free(aux->ingreso);
 		free(aux->puesto);
 		free(aux->fecha);
+
 
 		*aux = t;
 		o->r.actuales--;
@@ -561,22 +597,36 @@ void revisarModelosFecha(Organizacion* o, int nomina, char *fecha){
 
 void imprimirModelo(Modelo m){
 
-	printf("-----TRABAJO------\n");
+	printf("-----MODELO------\n");
 	if (m.tipo == 0){
 		printf("Edificio\n");
+		printf("Niveles: %d\n",m.niveles);
+		printf("periodo: %d\n",m.periodo);
+		if (m.simetrico){
+			printf("Simetrico\n");
+		}
+		else {
+			printf("No simetrico\n");
+		}
 	}
-	else if (m.tipo == 2){
+	else if (m.tipo == 1){
 		printf("Torre\n");
+		printf("Niveles %d\n",m.niveles);
+		printf("periodo: %d\n",m.periodo);
 	}
 	else {
 		printf("Nave\n");
+		printf("Niveles %d\n",1);
+		printf("periodo: %d\n",m.periodo);
+		printf("Techo: %s\n", m.techo);
 	}
 
 }
 
 void revisarVariosModelos(Organizacion* o, int c){
 
-	for (int i=0;i<c;i++){
+	int i;
+	for (i = 0;i<c;i++){
 		int nomina;
 		printf("Nomina a revisar: ");
 		scanf("%d",&nomina);
@@ -590,6 +640,11 @@ void revisarVariosModelos(Organizacion* o, int c){
 			printf("Error en la creacion del proceso\n");
 		else if (childpid == 0){
 			revisarModelosFecha(o,nomina,fecha);
+			liberarMemoria(o);
+			free(o->m.fechas);
+			free(o->r.trabajadores);
+			free(o);
+			free(fecha);
 			exit(1);
 		}
 
@@ -598,6 +653,36 @@ void revisarVariosModelos(Organizacion* o, int c){
 
 	printf("Lista la revision\n");
 
-	
+}
+
+void reporte(Organizacion* o,char* inicio,char* fin) {
+
+	int fecha_inicio = atoi(inicio);
+	int fecha_fin = atoi(fin);
+
+	printf("*******REPORTES CON RANGO %s - %s ********",inicio,fin);
+
+	Fecha *aux_fecha;
+	for (aux_fecha = o->m.fechas; aux_fecha < o->m.fechas + o->m.actuales; ++aux_fecha){
+		printf("----REPORTE-----\n\n");
+		printf("Fecha %s\n\n",aux_fecha->fecha);
+		printf("Reportes para este dia: %d\n\n", calcularModelos(*aux_fecha));
+		int comp = atoi(aux_fecha->fecha);
+		if (fecha_inicio <= comp && comp <= fecha_fin){
+			Trabajador *aux_trabajador;
+			for (aux_trabajador = aux_fecha->trabajadores; aux_trabajador < aux_fecha->trabajadores + aux_fecha->actuales; ++aux_trabajador){
+				imprimirTrabajador(*aux_trabajador);
+			}
+		}
+	}
+}
+
+int calcularModelos(Fecha f){
+	Trabajador *aux_trabajador;
+	int res = 0;
+	for (aux_trabajador = f.trabajadores; aux_trabajador < f.trabajadores + f.actuales; aux_trabajador++){
+		res += aux_trabajador->actuales;
+	}
+	return res;
 }
 
