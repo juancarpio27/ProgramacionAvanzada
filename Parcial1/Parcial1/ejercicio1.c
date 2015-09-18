@@ -316,7 +316,7 @@ void agregarEstructura(Organizacion *o, int n){
 					printf("Niveles: ");
 					scanf("%d", &m.niveles);
 					m.modales = (int*)malloc(m.niveles*sizeof(int));
-					m.diametros = (int*)malloc(2*sizeof(int));
+					m.diametros = (int*)malloc(m.niveles*2*sizeof(int));
 				}
 				if (m.tipo == NAVE){
 					m.niveles = 1;
@@ -361,7 +361,7 @@ void agregarEstructura(Organizacion *o, int n){
 					printf("Niveles: ");
 					scanf("%d", &m.niveles);
 					m.modales = (int*)malloc(m.niveles*sizeof(int));
-					m.diametros = (int*)malloc(2*sizeof(int));
+					m.diametros = (int*)malloc(m.niveles*2*sizeof(int));
 				}
 				if (m.tipo == NAVE){
 					m.niveles = 1;
@@ -444,7 +444,7 @@ void agregarEstructura(Organizacion *o, int n){
 				printf("Niveles: ");
 				scanf("%d", &m.niveles);
 				m.modales = (int*)malloc(m.niveles*sizeof(int));
-				m.diametros = (int*)malloc(2*sizeof(int));
+				m.diametros = (int*)malloc(m.niveles*2*sizeof(int));
 			}
 			if (m.tipo == NAVE){
 				m.niveles = 1;
