@@ -1,3 +1,5 @@
+//Examen 1 Juan Andres Carpio
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
