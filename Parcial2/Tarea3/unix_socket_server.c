@@ -25,14 +25,10 @@ int main(int argc, const char * argv[]) {
 
     const char* const socket_name = argv[1];
     
-    //Crear el socket
     servidor = socket(PF_LOCAL, SOCK_STREAM, 0);
     
-    // Enlace con el socket
-    //direccion.sin_port = htons(TCP_PORT);
     direccion.sun_family = AF_LOCAL;
     strcpy(direccion.sun_path,socket_name);
-    //inet_aton(argv[1], &direccion.sun_addr);
     
     bind(servidor,&direccion, SUN_LEN(&direccion));
     
@@ -49,15 +45,10 @@ int main(int argc, const char * argv[]) {
         printf("Comunicacion establecida con socket UNIX\n");
         while (leidos = read(cliente, &buffer, sizeof(buffer))) {
 
-            printf("Buffer vale %s y su comp vale %d\n",buffer,strcmp(buffer,"quit"));
             if (!strcmp(buffer,"quit\n"))
                 break;
             write(fileno(stdout), &buffer, leidos);
-            if (!strcmp(buffer,"quit\n"))
-                break;
             leidos = read(fileno(stdin), &buffer, sizeof(buffer));
-            if (!strcmp(buffer,"quit\n"))
-                break;
             write(cliente, &buffer, leidos);
             if (!strcmp(buffer,"quit\n"))
                 break;
@@ -65,7 +56,6 @@ int main(int argc, const char * argv[]) {
     }
     
     // Cerrar el socket
-    
     close(servidor);
     close(cliente);
     

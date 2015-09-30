@@ -27,10 +27,8 @@ int main(int argc, const char * argv[]) {
     cliente = socket(PF_LOCAL, SOCK_STREAM, 0);
     
     // Establecer conexión
-    //direccion.sin_port = htons(TCP_PORT);
     direccion.sun_family = AF_LOCAL;
     strcpy(direccion.sun_path,socket_name);
-    //inet_aton(argv[1], &direccion.sin_addr);
     
     int estado = connect(cliente,&direccion, SUN_LEN(&direccion));
     // Comunicación

@@ -33,20 +33,15 @@ int main(int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
     
-    /* Read the file int-by-int from the mmap
-     */
     int j = 0;
     printf("AQUI ESTOY\n\n");
     while (1){
-        //printf("Dentro del ciclo\n");
-        //printf("EL valor de j es %d y el de map es %d\n",j,*(map+j));
+
         if (*(map+j) != 0){
             if (*(map+j) == -1)
                 break;
             printf("El factorial de %d es = %d\n",*(map+j),factorial(*(map+j)));
             ++j;
-            //printf("El siguiente es %d",*(map+j+1));
-            //*map = 0;
         }
     }
 
