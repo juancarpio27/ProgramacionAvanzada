@@ -79,7 +79,7 @@ int main(int argc, const char * argv[]) {
             char actual[1000];
             strcpy(actual,"");
             int *numeros = (int*)malloc(10*sizeof(int));
-            
+
             while (segundos >=0) {
 
                 //ME DUERMO UN SEGUNDO
@@ -107,8 +107,8 @@ int main(int argc, const char * argv[]) {
 
             }
             printf("Voy a mandar %s",buffer);
+            write(cliente, &numeros, sizeof(numeros));
             free(numeros);
-            write(cliente, &actual, sizeof(buffer));
 
         }
     }
