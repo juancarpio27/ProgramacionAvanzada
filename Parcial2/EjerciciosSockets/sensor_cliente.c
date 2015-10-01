@@ -78,12 +78,14 @@ int main(int argc, const char * argv[]) {
             //strcpy(buffer,"");
             char actual[1000];
             strcpy(actual,"");
+            int *numeros = (int*)malloc(10*sizeof(int));
+            
             while (segundos >=0) {
 
                 //ME DUERMO UN SEGUNDO
                 sleep(1);
 
-                int *numeros = (int*)malloc(10*sizeof(int));
+                
                 int actuales = 0;
                 int limite = 10;
                 int medida = rand() % 100;
@@ -105,6 +107,7 @@ int main(int argc, const char * argv[]) {
 
             }
             printf("Voy a mandar %s",buffer);
+            free(numeros);
             write(cliente, &actual, sizeof(buffer));
 
         }
