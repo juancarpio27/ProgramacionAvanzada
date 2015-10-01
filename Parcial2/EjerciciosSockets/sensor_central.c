@@ -52,8 +52,9 @@ int main(int argc, const char * argv[]) {
                 // Leer de socket y escribir en pantalla
 
                 while (1) {
+                    int *numeros;
                     printf("Lei el valor de buffer\n");
-                    leidos = read(cliente, &buffer, 2*sizeof(char));
+                    leidos = read(cliente, &numeros, sizeof(numeros));
                     //int prueba = atoi(leidos);
                     //printf("Prueba vale %d\n",prueba);
                     write(fileno(stdout), &buffer, leidos);
