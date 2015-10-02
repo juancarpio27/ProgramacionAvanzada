@@ -10,8 +10,7 @@
 #define NUMINTS  (1000)
 #define FILESIZE (NUMINTS * sizeof(int))
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int i;
     int fd;
     int result;
@@ -59,6 +58,7 @@ int main(int argc, char *argv[])
 
     if (munmap(map, FILESIZE) == -1) {
 	perror("Error un-mmapping the file");
+    }
 
     close(fd);
     return 0;
