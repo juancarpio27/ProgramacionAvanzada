@@ -107,7 +107,7 @@ int main(int argc, const char * argv[]) {
 
             }
             printf("Voy a mandar %s",buffer);
-            write(cliente, &numeros, sizeof(numeros));
+            write(cliente, &numeros, sizeof(int));
             free(numeros);
 
         }
