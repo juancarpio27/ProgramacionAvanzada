@@ -82,7 +82,7 @@ int main() {
 			
 		sleep(10);
 		kill(getppid(),SIGUSR1);
-		exit(0);
+		while(1);
 	}
 
 	//Codigo del padre
@@ -100,7 +100,7 @@ int main() {
 			printf("No se pudo establecer el manejador de la senal.....FAIL\n");
 		}
 		alarm(3);
-		wait(0);			
+		while(1);			
 	}
 
 	return 0;
