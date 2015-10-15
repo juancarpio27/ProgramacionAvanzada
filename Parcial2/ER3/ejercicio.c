@@ -1,5 +1,15 @@
 #include <signal.h>
 #include <stdio.h>
+#include <dirent.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <string.h>
+
+#define FICHEROS 5
+#define SEGUNDOS 3
 
 /*****COMANDOS
 	struct sigaction nombre;
@@ -31,7 +41,57 @@
 
 ******/
 
+int grabar = 1;
+
+void manejador_alarma(int id){
+	grabar = 0;
+}
+
 int main(){
+
+	sigset_t todas;
+	sigfillset(&todas);
+	sigdelset(&todas,SIGALRM);
+	sigprocmask(SIG_BLOCK,&todas,NULL);
+
+	struct dirent *pDirent;
+    DIR *pDir;
+
+    pDir = opendir ("datos");
+    if (pDir == NULL) {
+        system("mkdir datos");
+    }
+    else {
+    	system("rm -rf datos");
+    	system("mkdir datos");
+    }
+
+    int i = 0;
+    for (;i<FICHEROS;++i){
+    	grabar = 1;
+    	
+    	if (i==0){
+    		char nombre[20];
+    		strcpy(nombre,"/datos/a0");
+    		printf("Cree el archivo %s\n",nombre);
+    		FILE *f;
+    		f = fopen(nombre, "w");
+    		if (f == NULL)
+    			printf("Error\n");
+    		alarm(SEGUNDOS);
+
+    		//while (grabar){
+    		//	fprintf(f, "x%s", "");
+    		//}
+    		sigset_t pendientes;
+    		sigpending(&pendientes);
+    	}
+    	
+    }
+
+    printf("Imprimiendo los archivos\n");
+    system("ls -l ./datos");
+
 
 	return 0;
 }
