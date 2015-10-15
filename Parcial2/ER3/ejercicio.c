@@ -94,23 +94,39 @@ int main(){
     int i = 0;
     for (;i<FICHEROS;++i){
     	grabar = 1;
+
+    	char nombre[20];
+    	
     	
     	if (i==0){
-    		char nombre[20];
     		strcpy(nombre,"/datos/a0");
-    		printf("Cree el archivo %s\n",nombre);
-    		FILE *f;
-    		f = fopen(nombre, "w");
-    		if (f == NULL)
-    			printf("Error\n");
-    		alarm(SEGUNDOS);
-
-    		//while (grabar){
-    		//	fprintf(f, "x%s", "");
-    		//}
-    		sigset_t pendientes;
-    		sigpending(&pendientes);
     	}
+    	if (i==1){
+    		strcpy(nombre,"/datos/a1");
+    	}
+    	if (i==2){
+    		strcpy(nombre,"/datos/a2");
+    	}
+    	if (i==3){
+    		strcpy(nombre,"/datos/a3");
+    	}
+    	if (i==4){
+    		strcpy(nombre,"/datos/a4");
+    	}
+    		
+    	printf("Cree el archivo %s\n",nombre);
+    	FILE *f;
+    	f = fopen(nombre, "w");
+    	if (f == NULL)
+    		printf("Error\n");
+    	alarm(SEGUNDOS);
+
+    	//while (grabar){
+    	//	fprintf(f, "x%s", "");
+    	//}
+    	sigset_t pendientes;
+    	sigpending(&pendientes);
+    
     	
     }
 
