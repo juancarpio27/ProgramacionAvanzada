@@ -99,19 +99,19 @@ int main(){
     	
     	
     	if (i==0){
-    		strcpy(nombre,"/datos/a0");
+    		strcpy(nombre,"datos/a0");
     	}
     	if (i==1){
-    		strcpy(nombre,"/datos/a1");
+    		strcpy(nombre,"datos/a1");
     	}
     	if (i==2){
-    		strcpy(nombre,"/datos/a2");
+    		strcpy(nombre,"datos/a2");
     	}
     	if (i==3){
-    		strcpy(nombre,"/datos/a3");
+    		strcpy(nombre,"datos/a3");
     	}
     	if (i==4){
-    		strcpy(nombre,"/datos/a4");
+    		strcpy(nombre,"datos/a4");
     	}
     		
     	printf("Cree el archivo %s\n",nombre);
@@ -121,9 +121,9 @@ int main(){
     		printf("Error\n");
     	alarm(SEGUNDOS);
 
-    	//while (grabar){
-    	//	fprintf(f, "x%s", "");
-    	//}
+    	while (grabar){
+    		fprintf(f, "x%s", "");
+    	}
     	sigset_t pendientes;
     	sigpending(&pendientes);
     
