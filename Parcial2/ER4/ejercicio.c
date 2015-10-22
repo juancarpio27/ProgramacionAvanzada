@@ -40,10 +40,7 @@ free(tid);
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-
-#define PAPEL 0 
-#define CERILLOS 1
-#define TABACO 2
+#include <time.h>
 
 pthread_mutex_t mesa = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t papel_sem = PTHREAD_MUTEX_INITIALIZER;
@@ -57,6 +54,7 @@ void fumar(){
 }
 
 void colocar_materiales(){
+	srand(time(NULL));
 	int r = rand() % 3;
 	if (r==0){
 		pthread_mutex_lock(&cerillos_sem);
@@ -81,22 +79,22 @@ void colocar_materiales(){
 	}
 }
 
-void agente(){
+void *agente(void *arg){
 
 	while (1){
-		//pthread_mutex_lock(&mesa);
+		pthread_mutex_lock(&mesa);
 		colocar_materiales();
-		//pthread_mutex_unlock(&mesa);
+		pthread_mutex_unlock(&mesa);
 	}
 
 	pthread_exit(NULL);
 
 }
 
-void *fumador_papel(){
+void *fumador_papel(void *arg){
 
 	while(1){
-		//pthread_mutex_lock(&mesa);
+		pthread_mutex_lock(&mesa);
 		pthread_mutex_lock(&cerillos_sem);
 		while (pthread_mutex_trylock(&tabaco_sem)){
 			pthread_mutex_unlock(&cerillos_sem);
@@ -105,17 +103,17 @@ void *fumador_papel(){
 		fumar();
 		pthread_mutex_unlock(&tabaco_sem);
 		pthread_mutex_unlock(&cerillos_sem);
-		//pthread_mutex_unlock(&mesa);
+		pthread_mutex_unlock(&mesa);
 	}
 
 	pthread_exit(NULL);
 
 }
 
-void *fumador_tabaco(){
+void *fumador_tabaco(void *arg){
 
 	while(1){
-		//pthread_mutex_lock(&mesa);
+		pthread_mutex_lock(&mesa);
 		pthread_mutex_lock(&cerillos_sem);
 		while (pthread_mutex_trylock(&papel_sem)){
 			pthread_mutex_unlock(&cerillos_sem);
@@ -124,17 +122,17 @@ void *fumador_tabaco(){
 		fumar();
 		pthread_mutex_unlock(&papel_sem);
 		pthread_mutex_unlock(&cerillos_sem);
-		//pthread_mutex_unlock(&mesa);
+		pthread_mutex_unlock(&mesa);
 	}
 
 	pthread_exit(NULL);
 
 }
 
-void fumador_cerillos(){
+void *fumador_cerillos(void *arg){
 
 	while(1){
-		//pthread_mutex_lock(&mesa);
+		pthread_mutex_lock(&mesa);
 		pthread_mutex_lock(&papel_sem);
 		while (pthread_mutex_trylock(&tabaco_sem)){
 			pthread_mutex_unlock(&papel_sem);
@@ -143,31 +141,33 @@ void fumador_cerillos(){
 		fumar();
 		pthread_mutex_unlock(&tabaco_sem);
 		pthread_mutex_unlock(&papel_sem);
-		//pthread_mutex_unlock(&mesa);
+		pthread_mutex_unlock(&mesa);
 	}
 
 	pthread_exit(NULL);
 
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
 	
-	pthread_t agente;
-	pthread_t fumador_papel;
-	pthread_t fumador_tabaco;
-	pthread_t fumador_cerillos;
+	srand(time(NULL));
 
-	pthread_create(&agente,NULL,agente,NULL);
-	pthread_create(&fumador_papel,NULL,fumador_papel,NULL);
-	pthread_create(&fumador_tabaco,NULL,fumador_tabaco,NULL);
-	pthread_create(&fumador_cerillos,NULL,fumador_cerillos,NULL);
+	pthread_t agente_tid;
+	pthread_t fumador_papel_tid;
+	pthread_t fumador_tabaco_tid;
+	pthread_t fumador_cerillos_tid;
+
+	pthread_create(&agente_tid,NULL,agente,NULL);
+	pthread_create(&fumador_papel_tid,NULL,fumador_papel,0);
+	pthread_create(&fumador_tabaco_tid,NULL,fumador_tabaco,1);
+	pthread_create(&fumador_cerillos_tid,NULL,fumador_cerillos,2);
 
 
-	pthread_join(agente,NULL);
-	pthread_join(fumador_papel,NULL);
-	pthread_join(fumador_cerillos,NULL);
-	pthread_join(fumador_tabaco,NULL);
+	pthread_join(agente_tid,NULL);
+	pthread_join(fumador_papel_tid,NULL);
+	pthread_join(fumador_cerillos_tid,NULL);
+	pthread_join(fumador_tabaco_tid,NULL);
 
 	return 0;
 }
