@@ -46,7 +46,6 @@ free(tid);
 #define TABACO 2
 
 pthread_mutex_t mesa = PTHREAD_MUTEX_INITIALIZER;
-
 pthread_mutex_t papel_sem = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t cerillos_sem = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t tabaco_sem = PTHREAD_MUTEX_INITIALIZER;
@@ -58,7 +57,7 @@ void fumar(){
 }
 
 void colocar_materiales(){
-	int r = 0;
+	int r = rand() % 3;
 	if (r==0){
 		pthread_mutex_lock(&cerillos_sem);
 		pthread_mutex_lock(&tabaco_sem);
@@ -82,12 +81,12 @@ void colocar_materiales(){
 	}
 }
 
-void *agente(){
+void agente(){
 
 	while (1){
-		pthread_mutex_lock(&mesa);
+		//pthread_mutex_lock(&mesa);
 		colocar_materiales();
-		pthread_mutex_unlock(&mesa);
+		//pthread_mutex_unlock(&mesa);
 	}
 
 	pthread_exit(NULL);
@@ -97,7 +96,7 @@ void *agente(){
 void *fumador_papel(){
 
 	while(1){
-		pthread_mutex_lock(&mesa);
+		//pthread_mutex_lock(&mesa);
 		pthread_mutex_lock(&cerillos_sem);
 		while (pthread_mutex_trylock(&tabaco_sem)){
 			pthread_mutex_unlock(&cerillos_sem);
@@ -106,7 +105,45 @@ void *fumador_papel(){
 		fumar();
 		pthread_mutex_unlock(&tabaco_sem);
 		pthread_mutex_unlock(&cerillos_sem);
-		pthread_mutex_unlock(&mesa);
+		//pthread_mutex_unlock(&mesa);
+	}
+
+	pthread_exit(NULL);
+
+}
+
+void *fumador_tabaco(){
+
+	while(1){
+		//pthread_mutex_lock(&mesa);
+		pthread_mutex_lock(&cerillos_sem);
+		while (pthread_mutex_trylock(&papel_sem)){
+			pthread_mutex_unlock(&cerillos_sem);
+			pthread_mutex_lock(&cerillos_sem);
+		}
+		fumar();
+		pthread_mutex_unlock(&papel_sem);
+		pthread_mutex_unlock(&cerillos_sem);
+		//pthread_mutex_unlock(&mesa);
+	}
+
+	pthread_exit(NULL);
+
+}
+
+void fumador_cerillos(){
+
+	while(1){
+		//pthread_mutex_lock(&mesa);
+		pthread_mutex_lock(&papel_sem);
+		while (pthread_mutex_trylock(&tabaco_sem)){
+			pthread_mutex_unlock(&papel_sem);
+			pthread_mutex_lock(&papel_sem);
+		}
+		fumar();
+		pthread_mutex_unlock(&tabaco_sem);
+		pthread_mutex_unlock(&papel_sem);
+		//pthread_mutex_unlock(&mesa);
 	}
 
 	pthread_exit(NULL);
@@ -123,9 +160,14 @@ int main(int argc, char const *argv[])
 
 	pthread_create(&agente,NULL,agente,NULL);
 	pthread_create(&fumador_papel,NULL,fumador_papel,NULL);
+	pthread_create(&fumador_tabaco,NULL,fumador_tabaco,NULL);
+	pthread_create(&fumador_cerillos,NULL,fumador_cerillos,NULL);
 
-	//pthread_join(agente,NULL);
-	//pthread_join(fumador_papel,NULL);
+
+	pthread_join(agente,NULL);
+	pthread_join(fumador_papel,NULL);
+	pthread_join(fumador_cerillos,NULL);
+	pthread_join(fumador_tabaco,NULL);
 
 	return 0;
 }
