@@ -52,7 +52,7 @@ void filosofo(void *arg){
 		pensar(i);
 
 		pthread_mutex_lock(&cubiertos[i]); 
-		while (pthread_mutex_lock(&cubiertos[(i+1)%5])) {
+		while (pthread_mutex_trylock(&cubiertos[(i+1)%5])) {
             pthread_mutex_unlock(&cubiertos[i]);
             pthread_mutex_lock(&cubiertos[i]);
         }
