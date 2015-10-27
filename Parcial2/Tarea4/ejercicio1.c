@@ -21,18 +21,19 @@ void trabajar_mina();
 int main(){
 	srand(time(NULL));
 	int i;
-	pthread_t enanos_t[ENANOS];
+	pthread_t *enanos_t = (pthread_t*)malloc(ENANOS*sizeof(pthread_t));
 	pthread_t blancanieves_t;
 	pthread_create(&blancanieves_t,NULL,blancanieves,NULL);
 	for (i=0;i<ENANOS;++i){
-		pthread_create(&enanos_t[i],NULL,enano,i);
+		pthread_create(enanos_t+i,NULL,enano,i);
 	}
 
 
 	for (i=0;i<ENANOS;++i){
-		pthread_join(enanos_t[i],NULL);
+		pthread_join(*(enanos_t+i),NULL);
 	}
 	pthread_join(blancanieves_t,NULL);
+	free(enanos_t);
 	return 0;
 }
 

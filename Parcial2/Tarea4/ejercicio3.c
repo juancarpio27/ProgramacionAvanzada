@@ -11,32 +11,37 @@ typedef struct {
 	int id;
 } datos_robot;
 
-pthread_mutex_t mutex_niveles[N];
-pthread_cond_t cond_niveles[N];
-int pesos[N];
-int acumulados[N];
+pthread_mutex_t *mutex_niveles;
+pthread_cond_t *cond_niveles;
+int *pesos;
+int *acumulados;
 
 void *robot(void *arg);
 
 int main(){
 
+	mutex_niveles = (pthread_mutex_t*)malloc(N*sizeof(pthread_mutex_t));
+	cond_niveles = (pthread_cond_t*)malloc(N*sizeof(pthread_cond_t));
+	pesos = (int*)malloc(N*sizeof(int));
+	acumulados = (int*)malloc(N*sizeof(int));
+
 	//Iniciar los pesos del centro comercial
 	srand(time(NULL));
 	int i;
 	for (i=0;i<N;++i){
-		pesos[i] = rand() % 10 + 6;
-		acumulados[i] = 0;
-		printf("La seccion %d pesa: %d \n",i,pesos[i]);
+		*(pesos+i) = rand() % 10 + 6;
+		*(acumulados+i) = 0;
+		printf("La seccion %d pesa: %d \n",i,*(pesos+i));
 	}
 
 	//Iniciar los semaforos y los condicionales
 	for (i=0;i<N;++i){
-		pthread_mutex_init(&mutex_niveles[i],NULL);
-		pthread_cond_init(&cond_niveles[i],NULL);
+		pthread_mutex_init(mutex_niveles+i,NULL);
+		pthread_cond_init(cond_niveles+i,NULL);
 	}
 
 	//Creando robots
-	pthread_t robots_t[ROBOTS*2];
+	pthread_t *robots_t = (pthread_t*)malloc(ROBOTS*2*sizeof(pthread_t));
 	datos_robot *d = (datos_robot*)malloc(ROBOTS*sizeof(datos_robot));
 
 	for (i=0; i < ROBOTS; i++){
@@ -47,6 +52,10 @@ int main(){
 	}
 
 	sleep(6);
+
+	/***
+	 *** Al rato llegan 5 robots mas	
+	 ***/
 	datos_robot *d_2 = (datos_robot*)malloc(ROBOTS*sizeof(datos_robot));
 	for (i=0+ROBOTS; i < ROBOTS+ROBOTS; i++){
 		
@@ -58,11 +67,16 @@ int main(){
 
 	//Esperar a que terminen
 	for (i=0;i<2*ROBOTS;++i){
-		pthread_join(robots_t[i],NULL);
+		pthread_join(*(robots_t+i),NULL);
 	}
 
 	free(d);
 	free(d_2);
+	free(mutex_niveles);
+	free(cond_niveles);
+	free(pesos);
+	free(acumulados);
+	free(robots_t);
 
 	return 0;
 }
@@ -78,25 +92,25 @@ void *robot(void *arg){
 	int j = 0;
 	while (j < N){
 
-		pthread_mutex_lock(&mutex_niveles[j]);
-		if (peso + acumulados[j] > pesos[j]){
+		pthread_mutex_lock(mutex_niveles+j);
+		if (peso + *(acumulados+j) > *(pesos+j)){
 			printf("Soy %d y me toco esperar a que baje un poco el peso\n",id);
-			pthread_cond_wait(&cond_niveles[j],&mutex_niveles[j]);
-			pthread_mutex_unlock(&mutex_niveles[j]);
+			pthread_cond_wait(cond_niveles+j,mutex_niveles+j);
+			pthread_mutex_unlock(mutex_niveles+j);
 		}
 		
 
 		else {
-			acumulados[j] += peso;
-			pthread_mutex_unlock(&mutex_niveles[j]);
-			printf("Robot %d haciendo mi shopping en el nivel %d que esta pesando %d/%d\n",id,j,acumulados[j],pesos[j]);
+			*(acumulados+j) += peso;
+			pthread_mutex_unlock(mutex_niveles+j);
+			printf("Robot %d haciendo mi shopping en el nivel %d que esta pesando %d/%d\n",id,j,*(acumulados+j),*(pesos+j));
 			int shopping = rand() % 4 + 1;
 			sleep(shopping);
 			printf("Robot %d ya me puedo ir del nivel %d\n",id,j);
-			pthread_mutex_lock(&mutex_niveles[j]);
-			acumulados[j] -= peso;
-			pthread_cond_broadcast(&cond_niveles[j]);
-			pthread_mutex_unlock(&mutex_niveles[j]);
+			pthread_mutex_lock(mutex_niveles+j);
+			*(acumulados+j) -= peso;
+			pthread_cond_broadcast(cond_niveles+j);
+			pthread_mutex_unlock(mutex_niveles+j);
 			j++;
 		}	
 	}

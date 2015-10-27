@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <time.h>
 
 #define VACIO 0
 #define MUJERES 1
@@ -29,25 +30,41 @@ void *hombre();
 int main(){
 
 	printf("Sanitario vacio\n");
-	pthread_t hombres;
-	pthread_t mujeres[2];
+	pthread_t *hombres_t = (pthread_t*)malloc(4*sizeof(pthread_t));
+	pthread_t *mujeres_t = (pthread_t*)malloc(4*sizeof(pthread_t));
 
 	int i;
-	for (i = 0; i<2; ++i){
-		pthread_create(mujeres+i,NULL,mujer,NULL);
+	for (i = 0; i<4; ++i){
+		pthread_create(mujeres_t+i,NULL,mujer,NULL);
+		pthread_create(hombres_t+i,NULL,hombre,NULL);
 	}
-	pthread_create(&hombres,NULL,hombre,NULL);
-	sleep(2);
-	pthread_t hombre_f,mujer_f;
-	pthread_create(&mujer_f,NULL,mujer,NULL);
-	pthread_create(&hombre_f,NULL,hombre,NULL);
 
-	pthread_join(mujeres[0],NULL);
-	pthread_join(mujeres[1],NULL);
-	pthread_join(hombres,NULL);
-	pthread_join(hombre_f,NULL);
-	pthread_join(mujer_f,NULL);
+	/****
+     **** Al rato van a llegar mas personas		
+	 ****/
+	sleep(5);
+    srand(time(NULL));
+    int sexo; 
+    pthread_t *random_t = (pthread_t*)malloc(8*sizeof(pthread_t));
+	for (i=0;i<8;++i){
+		sexo = rand() % 2;
+		if (sexo == 0)
+			pthread_create(random_t+i,NULL,mujer,NULL);
+		else 
+			pthread_create(random_t+i,NULL,hombre,NULL);
+	}
 
+	for (i=0;i<4;++i){
+		pthread_join(*(hombres_t+i),NULL);
+		pthread_join(*(mujeres_t+i),NULL);
+	}
+
+	for (i=0;i<8;++i){
+		pthread_join(*(random_t+i),NULL);
+	}
+	free(hombres_t);
+	free(mujeres_t);
+	free(random_t);
 
 	return 0;
 }
