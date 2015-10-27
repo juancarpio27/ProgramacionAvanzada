@@ -2,27 +2,54 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <time.h>
+#include <signal.h>
+#include <unistd.h>
 
 #define SENSORES 4
-#define CRITICO 35
+#define CRITICO 45
 
-pthread_mutex_t muestra_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t muestra_mutex[SENSORES];
+pthread_mutex_t file_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t muestra_cond = PTHREAD_COND_INITIALIZER;
+
 
 void *adquisicion_datos(void *arg);
 void *sensor_central();
+void recibir_critico(int id);
+void registrar_valores(int id);
+void cerrar_archivo(int id);
 
-int muestra;
+pthread_t *sensores_t;
+pthread_t central_t;
+
+int muestra[SENSORES];
+int lectura[SENSORES];
+
+FILE *f;
 
 int main() {
 
 	srand(time(NULL));
-	pthread_t *sensores_t = (pthread_t*)malloc(SENSORES*sizeof(pthread_t));
-	pthread_t central_t;
+	f = fopen("file.txt", "w+");
+	if (f == NULL)
+	{
+	    printf("Error opening file!\n");
+	    exit(1);
+	}
+
+	signal(SIGINT,cerrar_archivo);
+
+	sensores_t = (pthread_t*)malloc(SENSORES*sizeof(pthread_t));
+	int i;
+
+	for (i=0;i<SENSORES;++i){
+		pthread_mutex_init(&muestra_mutex[i],NULL);
+	}
 
 	pthread_create(&central_t,NULL,sensor_central,NULL);
-	int i;
+
 	for (i=0;i<SENSORES;++i){
+		lectura[i] = 0;
 		pthread_create(sensores_t+i,NULL,adquisicion_datos,i);
 	}
 
@@ -34,21 +61,56 @@ int main() {
 	return 0;
 }
 
+void recibir_critico(int id){
+
+	int i = 0;
+	while (i<SENSORES){
+		pthread_mutex_lock(&muestra_mutex[i]);
+		if (lectura[i]){
+			pthread_mutex_lock(&file_mutex);
+			fprintf(f,"Central: Recibi valor critico %d de %d\n",muestra[i],i);
+			pthread_mutex_unlock(&file_mutex);
+			lectura[i] = 0;
+		}
+		pthread_mutex_unlock(&muestra_mutex[i]);
+		++i;
+	}
+}
+
+void registrar_valores(int id){
+	printf("****Hora de medir***\n");
+	int i;
+	for (i=0;i<SENSORES;++i){
+		pthread_mutex_lock(&muestra_mutex[i]);
+		fprintf(f,"Lectura del sensor %d: %d\n",i,muestra[i]);
+		pthread_mutex_unlock(&muestra_mutex[i]);
+	}
+	int medir = rand() % 20;
+	printf("Voy a tomar medida en %d segundos",medir);
+	alarm(medir);
+}
+
+void cerrar_archivo(int id){
+	fclose(f);
+	raise(SIGTERM);
+}
+
 void *adquisicion_datos(void *arg){
 	int id = (int)arg;
 	printf("------Iniciando el sensor %d-------\n",id);
 	int random;
 	while (1){
 		random = rand() % 50;
-		printf("Sensor %d midio el valor %d\n",id,random);
+		pthread_mutex_lock(&muestra_mutex[id]);
+		muestra[id] = random;
+		pthread_mutex_unlock(&muestra_mutex[id]);
 		if (random > CRITICO){
-			printf("*****Sensor %d midio valor critico\n",id);
-			pthread_mutex_lock(&muestra_mutex);
-			muestra = random;
-			pthread_cond_signal(&muestra_cond);
-			pthread_mutex_unlock(&muestra_mutex);
+			pthread_mutex_lock(&muestra_mutex[id]);
+			lectura[id] = 1;
+			pthread_kill(central_t,SIGUSR1);
+			pthread_mutex_unlock(&muestra_mutex[id]);
 		}
-		sleep(1);
+		int s = sleep(1);
 	}
 	pthread_exit(NULL);
 }
@@ -56,12 +118,13 @@ void *adquisicion_datos(void *arg){
 void *sensor_central(){
 
 	printf("+++++++Iniciando consola central+++++++\n");
-
+	signal(SIGUSR1,recibir_critico);
+	signal(SIGALRM,registrar_valores);
+	int medir = rand() % 10;
+	printf("Voy a tomar medida en %d segundos",medir);
+	alarm(medir);
+	
 	while (1){
-		pthread_mutex_lock(&muestra_mutex);
-		pthread_cond_wait(&muestra_cond,&muestra_mutex);
-		printf("Registre el valor %d\n",muestra);
-		pthread_mutex_unlock(&muestra_mutex);
 
 	}
 
