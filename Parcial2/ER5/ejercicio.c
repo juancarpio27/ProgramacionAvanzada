@@ -65,6 +65,10 @@ int main(){
 		pthread_join(*(compradores+i),NULL);
 	}
 
+	free(sillas_mutex);
+	free(estado_sillas);
+	free(taquillas_mutex);
+
 	return 0;
 }
 
