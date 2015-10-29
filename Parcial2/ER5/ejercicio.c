@@ -68,6 +68,7 @@ int main(){
 	free(sillas_mutex);
 	free(estado_sillas);
 	free(taquillas_mutex);
+	free(compradores);
 
 	return 0;
 }
