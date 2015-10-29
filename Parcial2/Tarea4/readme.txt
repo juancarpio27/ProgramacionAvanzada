@@ -1,4 +1,4 @@
-Ejercicio 1
+####Ejercicio 1
 
 a) Realice un análisis exhaustivo de los problemas de concurrencia que se pueden dar en un sistema de este tipo, planteando cada uno de ellos y explicándolo.
 
