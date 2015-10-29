@@ -61,7 +61,7 @@ int main(){
 			pthread_create(compradores+i,NULL,comprar_taquilla,i);
 	}
 
-	for (i=0; i < 5; i++){
+	for (i=0; i < 10; i++){
 		pthread_join(*(compradores+i),NULL);
 	}
 
