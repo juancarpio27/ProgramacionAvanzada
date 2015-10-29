@@ -95,6 +95,7 @@ void *comprar_aplicacion(void *arg){
 			int decision = rand() % 2;
 			if (decision == 0){
 				printf("Cliente %d: No la voy a comprar pq soy un aburrido\n",id);
+				pthread_mutex_unlock(sillas_mutex+silla_deseada);
 				pthread_exit(NULL);
 			}
 
@@ -145,6 +146,7 @@ void *comprar_pagina(void *arg){
 			int decision = rand() % 2;
 			if (decision == 0){
 				printf("Cliente %d: No la voy a comprar pq soy un aburrido\n",id);
+				pthread_mutex_unlock(sillas_mutex+silla_deseada);
 				pthread_exit(NULL);
 			}
 
@@ -213,6 +215,7 @@ void *comprar_taquilla(void *arg){
 			int decision = rand() % 2;
 			if (decision == 0){
 				printf("Cliente %d: No la voy a comprar pq soy un aburrido\n",id);
+				pthread_mutex_unlock(sillas_mutex+silla_deseada);
 				pthread_exit(NULL);
 			}
 
