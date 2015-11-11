@@ -3,7 +3,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define N 10
+#define N 1000
 
 int main(){
 
@@ -11,15 +11,15 @@ int main(){
 	srand(time(NULL));
 
 	int *array = (int*)malloc(sizeof(int));
-	int i;
+	int i,m;
 	for (i=0;i<N;++i){
 		*(array+i) = rand() % 50;
 	}
 
-	/**Se mueve linearmente por la variable array**/
-	#pragma omp simd linear(array)
-	for (i=0;i<N;++i){
-		printf("%d ",*(array+i));
+	m = 2;
+	#pragma omp simd linear(m:4)
+	for (i=0;i<N;i++){
+		array[i] = array[i]*m;
 	}
 
 	free(array);
