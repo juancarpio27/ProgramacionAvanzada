@@ -9,26 +9,25 @@ int factorial(int n);
 
 int main(){
 
-	float calculo;
-	float e = 0.0;
+	int suma = 0;
 	int i;
 
-	#pragma omp simd private(calculo) reduction(+:e)
+	printf("++++++++reduction++++++++\n");
+
+	srand(time(NULL));
+
+	int array[N];
 	for (i=0;i<N;++i){
-		calculo = 1.0/factorial(i);
-		e += calculo;
+		array[i] = rand() % 50;
 	}
 
-	printf("El valor aproximado de e es %f\n",e);
+	#pragma omp simd reduction(+:suma)
+	for (i=0;i<N;++i){
+		suma += array[i];
+	}
+
+	printf("El promedio del arreglo es %d\n",suma/N);
 
 	return 0;
 }
 
-int factorial(int n){
-	int res = 1;
-	int j;
-	for (j=1;j<=n;j++){
-		res *= j;
-	}
-	return res;
-}

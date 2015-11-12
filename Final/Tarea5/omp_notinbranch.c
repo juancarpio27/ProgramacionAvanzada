@@ -3,37 +3,56 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define N 10
+#define N 1000000
 
-int factorial(int n);
+void generar(int *array);
 
 #pragma omp declare simd notinbranch
-float factor(int n){
-	return 1.0/factorial(n);
-}
+int *calcular_maximos(int *a, int *b);
+
+int max(int a, int b);
 
 int main(){
 
-	float calculo;
-	float e = 0.0;
+	printf("++++++++notinbranch++++++++\n");
 	int i;
 
-	#pragma omp simd private(calculo) reduction(+:e)
-	for (i=0;i<N;++i){
-		calculo = factor(i);
-		e += calculo;
-	}
+	int *a = (int*)malloc(N*sizeof(int));
+	int *b = (int*)malloc(N*sizeof(int));
+	
 
-	printf("El valor aproximado de e es %f\n",e);
+	generar(a);
+	generar(b);
+
+	/**Calcular maximo con una sola instruccion para multiples datos**/
+	int *c = calcular_maximos(a,b);
+
+	printf("Arreglo C contiene el maximo entre cada arreglo\n");
 
 	return 0;
 }
 
-int factorial(int n){
-	int res = 1;
+/**Generar los arreglos**/
+void generar(int *array){
 	int i;
-	for (i=1;i<=n;++i){
-		res *= i;
+	for (i=0;i<N;++i){
+		*(array+i) = rand() % 100;
 	}
-	return res;
+}
+
+/**Maximo entre dos numeros**/
+int max(int a,int b){
+	if (a>b)
+		return a;
+	else
+		return b;
+}
+
+int *calcular_maximos(int *a, int *b){
+	int *array = (int*)malloc(N*sizeof(int));
+	int i;
+	for (i=0;i<N;++i){
+		*(array+i) = max(*(a+i),*(b+i));
+	}
+	return array;
 }

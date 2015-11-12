@@ -8,6 +8,8 @@
 
 int main(){
 
+	printf("++++++++lastprivate++++++++\n");
+
 	int valor = 0;
 	int i;
 

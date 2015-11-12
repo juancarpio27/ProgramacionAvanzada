@@ -10,6 +10,7 @@ void *operacion(int *array, int *b, int m);
 
 int main(){
 
+	printf("++++++++uniform++++++++\n");
 
 	int *array = (int*)malloc(N*sizeof(int));
 	int *b = (int*)malloc(N*sizeof(int));
@@ -20,7 +21,9 @@ int main(){
 		*(b+i) = 2*i;
 	}
 
-	operacion(array,b,2);
+	int m = 2;
+	printf("Llamando a funcion, m=%d tendra valor uniforme para la funcion\n",m);
+	operacion(array,b,m);
 
 	for (i=0;i<N;++i){
 		printf("b[%d] = %d\n",i,*(b+i));
@@ -35,6 +38,6 @@ int main(){
 void *operacion(int *array, int *b, int m){
 	int i;
 	for (i=0;i<N;++i){
-		*(b+i) = *(array+i)/2;
+		*(b+i) = *(array+i)/m;
 	}
 }

@@ -7,6 +7,8 @@
 
 int main(){
 
+	printf("++++++++collapse++++++++\n");
+
 	int A[N][N];
 	int B[N][N];
 	int C[N][N];

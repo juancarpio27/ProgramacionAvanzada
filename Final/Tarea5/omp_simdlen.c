@@ -14,7 +14,7 @@ int max(int a, int b);
 
 int main(){
 
-	printf("++++++++omp simd++++++++\n");
+	printf("++++++++simdlen++++++++\n");
 	int i;
 
 	int *a = (int*)malloc(N*sizeof(int));

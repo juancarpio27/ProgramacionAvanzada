@@ -9,6 +9,8 @@ int factorial(int n);
 
 int main(){
 
+	printf("++++++++private++++++++\n");
+
 	float calculo;
 	float e = 0.0;
 	int i;
